@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Weather Stations</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f9;
+            margin: 0;
+            padding: 0;
+        }
+
+        header {
+            background-color: #4CAF50;
+            color: white;
+            text-align: center;
+            padding: 1rem 0;
+            font-size: 1.5rem;
+            font-weight: bold;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 2rem auto;
+            padding: 0 1rem;
+        }
+
+        .station-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+        }
+
+        .station-card {
+            background-color: white;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            padding: 1rem;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .station-card h3 {
+            color: #4CAF50;
+            margin-bottom: 0.5rem;
+        }
+
+        .station-card p {
+            margin: 0.3rem 0;
+            font-size: 0.9rem;
+            color: #555;
+        }
+    </style>
+</head>
+<body>
+    <header>Weather Stations</header>
+    <div class="container">
+        <div id="stations" class="station-grid">
+            <!-- Stations will be dynamically inserted here -->
+        </div>
+    </div>
+
+    <script>
+        async function fetchStations() {
+            try {
+                const response = await fetch('/stations');
+                const data = await response.json();
+
+                // Extract features from the API response
+                const stations = data.features || [];
+                renderStations(stations);
+            } catch (error) {
+                console.error('Error fetching station data:', error);
+            }
+        }
+
+        function renderStations(stations) {
+            const stationsContainer = document.getElementById('stations');
+            stationsContainer.innerHTML = '';
+
+            stations.forEach(station => {
+                const { name, stationIdentifier: id, elevation } = station.properties;
+                const elevationText = elevation ? `${elevation.value} ${elevation.unitCode}` : 'N/A';
+
+                const card = document.createElement('div');
+                card.className = 'station-card';
+                card.innerHTML = `
+                    <h3>${name || 'Unknown Station'}</h3>
+                    <p><strong>ID:</strong> ${id || 'N/A'}</p>
+                    <p><strong>Elevation:</strong> ${elevationText}</p>
+                `;
+                stationsContainer.appendChild(card);
+            });
+        }
+
+        // Fetch and display stations when the page loads
+        fetchStations();
+    </script>
+</body>
+</html>
+
